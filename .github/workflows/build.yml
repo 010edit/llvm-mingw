@@ -52,7 +52,8 @@ jobs:
         if: github.event_name == 'schedule'
         id: get-versions
         run: |
-          echo LLVM_VERSION=$(git ls-remote https://github.com/llvm/llvm-project.git | grep 'refs/heads/main$' | awk '{print $1}') >> $GITHUB_OUTPUT
+          # Force LLVM version to 17.0.6 for OLLVM compatibility
+          echo LLVM_VERSION=llvmorg-17.0.6 >> $GITHUB_OUTPUT
           echo MINGW_W64_VERSION=$(git ls-remote https://github.com/mingw-w64/mingw-w64.git | grep 'refs/heads/master$' | awk '{print $1}') >> $GITHUB_OUTPUT
           echo PYTHON_VERSION_MINGW=$(git ls-remote https://github.com/msys2-contrib/cpython-mingw.git | grep 'refs/heads/mingw-v3.12.9$' | awk '{print $1}') >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
@@ -150,6 +151,13 @@ jobs:
           SOURCE_DATE_EPOCH: ${{needs.prepare.outputs.COMMIT_DATE_UNIX}}
           BUILD_DATE: ${{needs.prepare.outputs.BUILD_DATE}}
         run: |
+          # Apply OLLVM patches before building
+          if [ -f apply-ollvm-patches.sh ]; then
+            echo "Applying OLLVM patches..."
+            bash apply-ollvm-patches.sh
+          else
+            echo "OLLVM patch script not found, skipping..."
+          fi
           # Skip dynamic library dependencies that might make it harder to
           # run the binaries on other distros (and that have little use within
           # llvm-mingw).
@@ -241,6 +249,13 @@ jobs:
           SOURCE_DATE_EPOCH: ${{needs.prepare.outputs.COMMIT_DATE_UNIX}}
           BUILD_DATE: ${{needs.prepare.outputs.BUILD_DATE}}
         run: |
+          # Apply OLLVM patches before building
+          if [ -f apply-ollvm-patches.sh ]; then
+            echo "Applying OLLVM patches..."
+            bash apply-ollvm-patches.sh
+          else
+            echo "OLLVM patch script not found, skipping..."
+          fi
           # Skip dynamic library dependencies that might make it harder to
           # run the binaries on other distros (and that have little use within
           # llvm-mingw).
@@ -309,6 +324,13 @@ jobs:
           SOURCE_DATE_EPOCH: ${{needs.prepare.outputs.COMMIT_DATE_UNIX}}
           BUILD_DATE: ${{needs.prepare.outputs.BUILD_DATE}}
         run: |
+          # Apply OLLVM patches before building
+          if [ -f apply-ollvm-patches.sh ]; then
+            echo "Applying OLLVM patches..."
+            bash apply-ollvm-patches.sh
+          else
+            echo "OLLVM patch script not found, skipping..."
+          fi
           # Disable zstd and python. Both are available on the runners, but
           # installed with homebrew, and only available in the native (arm64)
           # form. Therefore, autodetection will pick them up, but linking
@@ -366,6 +388,13 @@ jobs:
           SOURCE_DATE_EPOCH: ${{needs.prepare.outputs.COMMIT_DATE_UNIX}}
           BUILD_DATE: ${{needs.prepare.outputs.BUILD_DATE}}
         run: |
+          # Apply OLLVM patches before building
+          if [ -f apply-ollvm-patches.sh ]; then
+            echo "Applying OLLVM patches..."
+            bash apply-ollvm-patches.sh
+          else
+            echo "OLLVM patch script not found, skipping..."
+          fi
           if [ "${{matrix.sys}}" = "mingw64" ]; then
               ARGS="--disable-dylib"
           fi

@@ -16,7 +16,7 @@
 
 set -e
 
-: ${LLVM_VERSION:=llvmorg-21.1.1}
+: ${LLVM_VERSION:=llvmorg-17.0.6}
 ASSERTS=OFF
 unset HOST
 BUILDDIR="build"
@@ -153,6 +153,13 @@ if [ -n "$SYNC" ] || [ -n "$CHECKOUT" ]; then
         esac
     fi
     cd ..
+fi
+
+# Apply OLLVM patches if available
+if [ -d "ollvm_path" ] && [ -f "apply-ollvm-patches.sh" ]; then
+    echo "Applying OLLVM obfuscation patches..."
+    bash apply-ollvm-patches.sh
+    echo "OLLVM patches applied successfully"
 fi
 
 [ -z "$CHECKOUT_ONLY" ] || exit 0
